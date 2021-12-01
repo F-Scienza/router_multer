@@ -1,5 +1,4 @@
-const fs = require('fs');
-
+const fs = require('fs')
 class Contenedor {
 	constructor(filename) {
 		this.id = 0;
@@ -8,17 +7,14 @@ class Contenedor {
 	}
 
 	async init() {
-		try {
-			let data = await fs.promises.readFile(this.file);
-			this.productList = JSON.parse(data);
-			for (const element of this.productList) {
-				if (element.id > this.id) this.id = element.id;
-			}
-		} catch (error) {
-			console.log('Aun no hay archivo');
-		}
 		console.log(`inicio el archivo`);
-	}
+		const data = await fs.readFileSync(this.file);
+		const dataProducts = JSON.parse(data);
+		for (const element of dataProducts) {
+			this.productList.push(element)
+		}
+		console.log("file loaded ")
+	} 
 
 	async getAll() {
 		let allProducts = JSON.stringify(this.productList);
@@ -44,18 +40,25 @@ class Contenedor {
 		await this.write();
 	}
 
+	async addProduct(obj){
+		obj.id = ++this.id
+		this.productList.push(obj)
+		return obj
+	}
+
 	async getById(searcheId) {
-		this.productList[searcheId];
-		console.log(
-			`get by id ${searcheId + 1}: ${JSON.stringify(
-				this.productList[searcheId]
-			)}`
-		);
-		return this.productList[searcheId];
+		let searchedProduct = this.productList.find(el => el.id == searcheId);
+		return searchedProduct;
 	}
 
 	async deleteById(id) {
 		this.productList = this.productList.filter(element => element.id != id);
+	}
+	
+	async update(id, obj){
+		const index = this.productList.findIndex((objB) => objB.id == id)
+		obj.id = this.productList[index] = obj
+		return obj
 	}
 }
 module.exports = Contenedor;
